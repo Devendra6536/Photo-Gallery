@@ -1,316 +1,546 @@
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gallery</title>
-<style>
-  
-  
-:root{
-  --bg:#0f1115; --panel:#1a1f26; --text:#eaeef5; --muted:#9aa3ad; --accent:#4cc38a;
-  --shadow:0 8px 20px rgba(0,0,0,.35);
-}
-*,*::before,*::after{box-sizing:border-box}
-html,body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gallery</title>
+  <style>
+    /* ===================== THEME VARIABLES ===================== */
+    /* Default (fallback) — will be overridden by [data-theme] below */
+    :root{
+      --bg:#0f1115; --panel:#1a1f26; --text:#eaeef5; --muted:#9aa3ad; --accent:#4cc38a;
+      --btn-hover:#243041; --border:rgba(255,255,255,.08);
+      --overlay-bg:rgba(10,12,14,.88);
+      --shadow:0 8px 20px rgba(0,0,0,.35);
+    }
+    :root[data-theme="dark"]{
+      --bg:#0f1115;
+      --panel:#1a1f26;
+      --text:#eaeef5;
+      --muted:#9aa3ad;
+      --accent:#4cc38a;
+      --btn-hover:#243041;
+      --border:rgba(255,255,255,.08);
+      --overlay-bg:rgba(10,12,14,.88);
+      --shadow:0 8px 20px rgba(0,0,0,.35);
+    }
+    :root[data-theme="light"]{
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --text:#0f1115;
+      --muted:#5e6772;
+      --accent:#2e7d5b;
+      --btn-hover:#e9eef5;
+      --border:rgba(0,0,0,.10);
+      /* Keep overlay slightly dark for image focus even in light mode */
+      --overlay-bg:rgba(10,12,14,.80);
+      --shadow:0 8px 20px rgba(0,0,0,.10);
+    }
 
-.site-header{padding:1.5rem 1rem .75rem;text-align:center}
-.site-header h1{margin:0;font-size:clamp(1.4rem,3.5vw,2.2rem)}
-.subtitle{margin:.4rem auto 1rem;color:var(--muted);max-width:70ch;font-size:.95rem}
+    *,*::before,*::after{box-sizing:border-box}
 
-/* ====== Gallery Grid ====== */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
-  gap:12px;
-  padding:0 1rem 2rem;
-  max-width:1100px;
-  margin:0 auto;
-}
+    /* Solid, uniform background across the page */
+    html, body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
 
-/* On small phones: force 1 column */
-@media (max-width: 480px){
-  .grid{
-    grid-template-columns: 1fr !important;
-  }
-}
+    /* Layout for sticky footer on short pages */
+    body{ min-height:100svh; display:flex; flex-direction:column; }
+    main{ flex:1; }
 
-/* Optional: slightly larger tiles from 480px and up (kept from your original) */
-@media (min-width:480px){
-  .grid{
-    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-  }
-}
+    /* ---------- Header ---------- */
+    .site-header{
+      padding:1.25rem 1rem .75rem;
+      text-align:center;
+      position:relative;
+    }
+    .site-header h1{margin:0;font-size:clamp(1.4rem,3.5vw,2.2rem)}
+    .subtitle{margin:.4rem auto 1rem;color:var(--muted);max-width:70ch;font-size:.95rem}
 
-.thumb{
-  width:100%;
-  aspect-ratio:4/3;
-  object-fit:cover;
-  border-radius:12px;
-  background:var(--panel);
-  box-shadow:var(--shadow);
-  cursor:pointer;
-  transition:transform 160ms ease, box-shadow 160ms ease;
-}
-.thumb:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.45)}
+    /* Theme toggle in header (top-right) */
+    .theme-toggle{
+      position:absolute; top:12px; right:12px;
+      border:2px black; background:var(--panel); color:var(--text);
+      padding:8px 10px; border-radius:10px; cursor:pointer;
+      box-shadow:var(--shadow); font-size:.95rem; display:flex; align-items:center; gap:.5rem;
+    }
+    .theme-toggle:hover{ background:var(--btn-hover); }
+    .theme-toggle:focus{ outline:2px solid var(--accent); outline-offset:2px; }
 
-/* ====== Viewer ====== */
-.viewer[hidden]{display:none}
-.viewer{
-  position:fixed;
-  inset:0;
-  background:rgba(10,12,14,.88);
-  backdrop-filter:blur(2px);
-  z-index:9999;
-  display:grid;
-  grid-template-rows:auto 1fr;
-}
+    /* ---------- Grid ---------- */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+      gap:12px;
+      padding:0 1rem 2rem;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    @media (max-width: 480px){
+      .grid{ grid-template-columns:1fr !important; }
+    }
+    @media (min-width:480px){
+      .grid{ grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); }
+    }
 
-.viewer__toolbar{
-  display:flex;
-  gap:8px;
-  padding:8px;
-  align-items:center;
-  background:rgba(255,255,255,.06);
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
+    .thumb{
+      width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px;
+      background:var(--panel); box-shadow:var(--shadow); cursor:pointer;
+      transition:transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .thumb:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 14px 26px rgba(0,0,0,.25)}
 
-.btn{
-  border:none;
-  background:var(--panel);
-  color:var(--text);
-  padding:10px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  box-shadow:var(--shadow);
-  font-size:1rem;
-}
-.btn:hover{background:#243041}
-.btn:focus{outline:2px solid var(--accent);outline-offset:2px}
-.viewer__gap{flex:1}
+    /* ---------- Viewer ---------- */
+    .viewer[hidden]{display:none}
+    .viewer{
+      position:fixed; inset:0; background:var(--overlay-bg);
+      backdrop-filter:blur(2px);
+      z-index:9999;
+      display:grid; grid-template-rows:auto 1fr;
+    }
+    .viewer__toolbar{
+      display:flex; gap:8px; padding:8px; align-items:center;
+      background:color-mix(in oklab, var(--panel) 90%, transparent);
+      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:none; background:var(--panel); color:var(--text);
+      padding:10px 12px; border-radius:10px; cursor:pointer;
+      box-shadow:var(--shadow); font-size:1rem; transition:background 160ms ease;
+    }
+    .btn:hover{background:var(--btn-hover)}
+    .btn:focus{outline:2px solid var(--accent); outline-offset:2px}
+    .viewer__gap{flex:1}
 
-.canvas{
-  position:relative;
-  overflow:hidden;
-  background:#0c0e12;
-  display:grid;
-  place-items:center;
-}
+    .canvas{
+      position:relative; overflow:hidden; background:color-mix(in oklab, var(--bg) 92%, #000 8%);
+      display:grid; place-items:center;
+      touch-action:none; /* allow pinch/drag without browser gestures */
+    }
+    .canvas__img{
+      width:100%; height:auto; max-width:800px; max-height:600px;
+      object-fit:contain;
 
-.canvas__img{
-  width:100%;
-  height:auto;
-  max-width:800px;   /* ✅ Responsive max width */
-  max-height:600px;  /* ✅ Responsive max height */
-  object-fit:contain;
-  transform-origin:center center;
-  user-select:none;
-  -webkit-user-drag:none;
-  will-change:transform;
-  transition:transform 60ms linear;
-}
+      /* IMPORTANT: top-left origin for stable zoom math */
+      transform-origin: 0 0;
 
-.counter{
-  position:absolute;
-  bottom:10px;
-  right:12px;
-   color:#fff;
-  opacity:.8;
-  font:500 14px/1.4 system-ui;
-}
+      user-select:none; -webkit-user-drag:none;
+      will-change:transform; transition:transform 60ms linear;
+    }
+    .counter{
+      position:absolute; bottom:10px; right:12px;
+      color:#fff; opacity:.9; font:500 14px/1.4 system-ui;
+      text-shadow:0 1px 2px rgba(0,0,0,.5);
+    }
 
-</style>
+    /* ---------- Simple Footer ---------- */
+    .site-footer{
+      padding:12px 16px;
+      text-align:center;
+      color:var(--muted);
+      background:color-mix(in oklab, var(--panel) 90%, transparent);
+      border-top:1px solid var(--border);
+      font-size:.9rem;
+    }
+    .site-footer a{
+      color:var(--text); text-decoration:none; opacity:.85;
+    }
+    .site-footer a:hover{ opacity:1; text-decoration:underline; }
+  </style>
 </head>
 <body>
-<header class="site-header">
-  <h1>Devendra Kumar photo Gallery</h1>
-  <p>Software Engineer I</p>
-  <p class="subtitle">Please find my photo here and rate</p>
-</header>
+  <header class="site-header">
+    <button id="btnTheme" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+      <span id="themeIcon" aria-hidden="true">🌙</span>
+      <span id="themeText">Dark</span>
+    </button>
 
-<section id="grid" class="grid" aria-label="Photo gallery"></section>
+    <h1>Devendra Kumar</h1>
+    <p>Software Engineer I</p>
+  </header>
 
-<div id="viewer" class="viewer" hidden>
-  <div class="viewer__toolbar">
-    <button class="btn" id="btnPrev">❮</button>
-    <button class="btn" id="btnNext">❯</button>
-    <button class="btn" id="btnZoomIn">+</button>
-    <button class="btn" id="btnZoomOut">−</button>
-    <button class="btn" id="btnReset">⟳</button>
-    <button class="btn" id="btnFull">⛶</button>
-    <div class="viewer__gap"></div>
-    <button class="btn" id="btnClose">×</button>
+  <main>
+    <section id="grid" class="grid" aria-label="Photo gallery"></section>
+  </main>
+
+  <!-- Simple footer -->
+  <footer class="site-footer" role="contentinfo">
+    <small>
+      © <span id="year"></span> Devendra Kumar · Software Engineer I
+      · 8630834625</a>
+    </small>
+  </footer>
+
+  <!-- Viewer -->
+  <div id="viewer" class="viewer" hidden>
+    <div class="viewer__toolbar">
+      <button class="btn" id="btnPrev">❮</button>
+      <button class="btn" id="btnNext">❯</button>
+      <button class="btn" id="btnZoomIn">+</button>
+      <button class="btn" id="btnZoomOut">−</button>
+      <button class="btn" id="btnReset">⟳</button>
+      <button class="btn" id="btnFull">⛶</button>
+      <div class="viewer__gap"></div>
+      <button class="btn" id="btnClose">×</button>
+    </div>
+
+    <div class="canvas" id="canvas" tabindex="0">
+      <img id="largeImg" class="canvas__img" src="" alt="">
+      <p id="counter" class="counter"></p>
+    </div>
   </div>
 
-  <div class="canvas" id="canvas" tabindex="0">
-    <img id="largeImg" class="canvas__img" src="" alt="">
-    <p id="counter" class="counter"></p>
-  </div>
-</div>
+  <script>
+    /* -------- Config -------- */
+    const TOTAL_IMAGES = 12;
+    const BASE_PATH = 'images';
+    const BASE_NAME = 'photo';
+    const EXTENSIONS = ['jpg','jpeg','png','webp','gif'];
 
-<script>
-  const TOTAL_IMAGES = 12;
-  const BASE_PATH = 'images';
-  const BASE_NAME = 'photo';
-  const EXTENSIONS = ['jpg','jpeg','png','webp','gif'];
+    /* -------- State -------- */
+    const grid   = document.getElementById('grid');
+    const viewer = document.getElementById('viewer');
+    const canvas = document.getElementById('canvas');
+    const largeImg = document.getElementById('largeImg');
+    const counter  = document.getElementById('counter');
 
-  const grid = document.getElementById('grid');
-  const images = [];
+    const btnPrev   = document.getElementById('btnPrev');
+    const btnNext   = document.getElementById('btnNext');
+    const btnZoomIn = document.getElementById('btnZoomIn');
+    const btnZoomOut= document.getElementById('btnZoomOut');
+    const btnReset  = document.getElementById('btnReset');
+    const btnFull   = document.getElementById('btnFull');
+    const btnClose  = document.getElementById('btnClose');
 
-  function findExistingImageUrl(n){
-    return new Promise((resolve, reject) => {
-      let idx = 0;
-      const attempt = () => {
-        if (idx >= EXTENSIONS.length) return reject();
-        const ext = EXTENSIONS[idx++];
-        const url = `${BASE_PATH}/${BASE_NAME}${n}.${ext}`;
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = attempt;
-        img.src = url;
-      };
-      attempt();
-    });
-  }
+    // Theme UI
+    const btnTheme  = document.getElementById('btnTheme');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
 
-  (async function buildThumbnails(){
-    for (let i = 1; i <= TOTAL_IMAGES; i++){
-      try{
-        const url = await findExistingImageUrl(i);
-        images.push({ src: url, alt: `Photo ${i}` });
-        const thumb = document.createElement('img');
-        thumb.className = 'thumb';
-        thumb.src = url;
-        thumb.alt = `Photo ${i}`;
-        thumb.dataset.index = images.length - 1;
-        grid.appendChild(thumb);
-      }catch(e){}
+    const images = [];
+    let currentIndex = -1;
+    let scale = 1, minScale = 0.25, maxScale = 16; /* generous headroom */
+    let translateX = 0, translateY = 0;
+    let startX = 0, startY = 0, isDragging = false;
+
+    /* -------- Helpers -------- */
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+    function applyTransform(){
+      largeImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
     }
-  })();
+    function resetTransform(hard = true){
+      if (hard){ scale = 1; translateX = 0; translateY = 0; }
+      applyTransform();
+    }
+    function updateCounter(){ counter.textContent = `${currentIndex + 1} / ${images.length}`; }
 
-  const viewer = document.getElementById('viewer');
-  const canvas = document.getElementById('canvas');
-  const largeImg = document.getElementById('largeImg');
-  const counter = document.getElementById('counter');
+    function zoomAtLocalPoint(x, y, factor){
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(factor) || factor <= 0) return;
+      const newScale = clamp(scale * factor, minScale, maxScale);
+      if (newScale === scale) return;
 
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
-  const btnZoomIn = document.getElementById('btnZoomIn');
-  const btnZoomOut = document.getElementById('btnZoomOut');
-  const btnReset = document.getElementById('btnReset');
-  const btnFull = document.getElementById('btnFull');
-  const btnClose = document.getElementById('btnClose');
+      const k = newScale / scale;
+      translateX = x - k * (x - translateX);
+      translateY = y - k * (y - translateY);
 
-  let currentIndex = -1;
-  let scale = 1, minScale = 0.25, maxScale = 8;
-  let translateX = 0, translateY = 0;
-  let startX = 0, startY = 0, isDragging = false;
+      scale = newScale;
+      applyTransform();
+    }
+    function zoomAtCanvasCenter(factor){
+      const r = canvas.getBoundingClientRect();
+      zoomAtLocalPoint(r.width/2, r.height/2, factor);
+    }
+    function zoomAtPoint(clientX, clientY, factor){
+      const r = canvas.getBoundingClientRect();
+      zoomAtLocalPoint(clientX - r.left, clientY - r.top, factor);
+    }
 
-  grid.addEventListener('click', (e) => {
-    const t = e.target.closest('.thumb');
-    if (!t) return;
-    openViewer(Number(t.dataset.index));
-  });
+    /* -------- Build thumbnails -------- */
+    function findExistingImageUrl(n){
+      return new Promise((resolve, reject) => {
+        let idx = 0;
+        const attempt = () => {
+          if (idx >= EXTENSIONS.length) return reject();
+          const ext = EXTENSIONS[idx++];
+          const url = `${BASE_PATH}/${BASE_NAME}${n}.${ext}`;
+          const img = new Image();
+          img.onload = () => resolve(url);
+          img.onerror = attempt;
+          img.src = url;
+        };
+        attempt();
+      });
+    }
+    (async function buildThumbnails(){
+      for (let i = 1; i <= TOTAL_IMAGES; i++){
+        try{
+          const url = await findExistingImageUrl(i);
+          images.push({ src: url, alt: `Photo ${i}` });
+          const thumb = document.createElement('img');
+          thumb.className = 'thumb';
+          thumb.src = url;
+          thumb.alt = `Photo ${i}`;
+          thumb.loading = 'lazy';
+          thumb.decoding = 'async';
+          thumb.dataset.index = images.length - 1;
+          grid.appendChild(thumb);
+        }catch(e){ /* skip missing files */ }
+      }
+    })();
 
-  function openViewer(index){
-    currentIndex = index;
-    const {src, alt} = images[currentIndex];
-    largeImg.src = src;
-    largeImg.alt = alt;
-    viewer.hidden = false;
-    resetTransform(true);
-    updateCounter();
-    canvas.focus();
-  }
+    /* -------- Viewer controls -------- */
+    grid.addEventListener('click', (e) => {
+      const t = e.target.closest('.thumb');
+      if (!t) return;
+      openViewer(Number(t.dataset.index));
+    });
 
-  function closeViewer(){
-    viewer.hidden = true;
-    largeImg.src = '';
-  }
+    function openViewer(index){
+      currentIndex = index;
+      const {src, alt} = images[currentIndex];
+      largeImg.src = src;
+      largeImg.alt = alt;
+      viewer.hidden = false;
+      resetTransform(true);
+      updateCounter();
+      canvas.focus();
+    }
+    function closeViewer(){
+      viewer.hidden = true;
+      largeImg.src = '';
+    }
+    btnClose.addEventListener('click', closeViewer);
 
-  btnClose.addEventListener('click', closeViewer);
+    function showPrev(){
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      largeImg.src = images[currentIndex].src;
+      largeImg.alt = images[currentIndex].alt;
+      resetTransform(true);
+      updateCounter();
+    }
+    function showNext(){
+      currentIndex = (currentIndex + 1) % images.length;
+      largeImg.src = images[currentIndex].src;
+      largeImg.alt = images[currentIndex].alt;
+      resetTransform(true);
+      updateCounter();
+    }
+    btnPrev.addEventListener('click', showPrev);
+    btnNext.addEventListener('click', showNext);
 
-  function showPrev(){
-    currentIndex = (currentIndex - 1 + images.length) % images.length;
-    largeImg.src = images[currentIndex].src;
-    resetTransform(true);
-    updateCounter();
-  }
-  function showNext(){
-    currentIndex = (currentIndex + 1) % images.length;
-    largeImg.src = images[currentIndex].src;
-    resetTransform(true);
-    updateCounter();
-  }
-  btnPrev.addEventListener('click', showPrev);
-  btnNext.addEventListener('click', showNext);
+    /* Keyboard */
+    document.addEventListener('keydown', (e)=>{
+      if (viewer.hidden) return;
+      if (e.key === 'ArrowLeft')  showPrev();
+      if (e.key === 'ArrowRight') showNext();
+      if (e.key === 'Escape')     closeViewer();
+      if (e.key === '+' || e.key === '=') zoomAtCanvasCenter(1.2);
+      if (e.key === '-')                   zoomAtCanvasCenter(1/1.2);
+      if (e.key.toLowerCase() === 'f')  toggleFullscreen();
+    });
 
-  document.addEventListener('keydown', (e)=>{
-    if (viewer.hidden) return;
-    if (e.key === 'ArrowLeft') showPrev();
-    if (e.key === 'ArrowRight') showNext();
-    if (e.key === 'Escape') closeViewer();
-  });
+    /* Buttons */
+    btnZoomIn.addEventListener('click', () => zoomAtCanvasCenter(1.2));
+    btnZoomOut.addEventListener('click', () => zoomAtCanvasCenter(1/1.2));
+    btnReset.addEventListener('click', () => resetTransform(true));
 
-  btnZoomIn.addEventListener('click', ()=> zoomAtCanvasCenter(1.2));
-  btnZoomOut.addEventListener('click', ()=> zoomAtCanvasCenter(1/1.2));
-  btnReset.addEventListener('click', ()=> resetTransform(true));
+    async function toggleFullscreen(){
+      if (!document.fullscreenElement) await viewer.requestFullscreen();
+      else await document.exitFullscreen();
+    }
+    btnFull.addEventListener('click', toggleFullscreen);
 
-  btnFull.addEventListener('click', async ()=>{
-    if (!document.fullscreenElement) await viewer.requestFullscreen();
-    else await document.exitFullscreen();
-  });
+    /* -------- Zoom interactions -------- */
 
-  canvas.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+    // Wheel zoom at cursor (desktop)
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const step = 1.12;
+      const factor = e.deltaY < 0 ? step : (1 / step);
+      zoomAtLocalPoint(x, y, factor);
+    }, { passive: false });
 
-  canvas.addEventListener('dblclick',(e)=>{
-    const factor = e.shiftKey ? (1/1.4) : 1.4;
-    zoomAtPoint(e.clientX, e.clientY, factor);
-  });
+    // Double-click (desktop): zoom IN; hold Shift to zoom OUT
+    const onDblClick = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const step = 1.35;
+      const factor = e.shiftKey ? (1 / step) : step;
+      zoomAtLocalPoint(x, y, factor);
+    };
+    canvas.addEventListener('dblclick', onDblClick);
+    // Do NOT bind dblclick on largeImg to avoid double firing
 
-  canvas.addEventListener('mousedown',(e)=>{
-    isDragging = true; startX = e.clientX; startY = e.clientY;
-  });
-  window.addEventListener('mousemove',(e)=>{
-    if (!isDragging) return;
-    const dx = e.clientX - startX, dy = e.clientY - startY;
-    startX = e.clientX; startY = e.clientY;
-    translateX += dx; translateY += dy;
-    applyTransform();
-  });
-  window.addEventListener('mouseup',()=>{ isDragging=false; });
+    // Double‑tap (mobile): zoom IN (touch‑only)
+    let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'touch') return; // touch only
 
-  function updateCounter(){ counter.textContent = `${currentIndex+1} / ${images.length}`; }
-  function applyTransform(){
-    largeImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-  }
-  function resetTransform(hard=true){
-    if (hard){ scale = 1; translateX = 0; translateY = 0; }
-    applyTransform();
-  }
-  function zoomAtCanvasCenter(factor){
-    const rect = canvas.getBoundingClientRect();
-    zoomAtLocalPoint(rect.width/2, rect.height/2, factor);
-  }
-  function zoomAtPoint(clientX, clientY, factor){
-    const rect = canvas.getBoundingClientRect();
-    zoomAtLocalPoint(clientX - rect.left, clientY - rect.top, factor);
-  }
-  function zoomAtLocalPoint(x,y,factor){
-    const newScale = Math.min(maxScale, Math.max(minScale, scale * factor));
-    const k = newScale / scale;
-    translateX = x - k * (x - translateX);
-    translateY = y - k * (y - translateY);
-    scale = newScale;
-    applyTransform();
-  }
+      const now = performance.now();
+      const dt = now - lastTapTime;
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const dist = Math.hypot(x - lastTapX, y - lastTapY);
 
-</script>
+      if (dt < 300 && dist < 24) {
+        const step = 1.35;
+        zoomAtLocalPoint(x, y, step); // always zoom in on double‑tap
+        lastTapTime = 0;
+      } else {
+        lastTapTime = now; lastTapX = x; lastTapY = y;
+      }
+    });
+
+    // Drag to pan (mouse)
+    canvas.addEventListener('mousedown',(e)=>{
+      isDragging = true; startX = e.clientX; startY = e.clientY;
+    });
+    window.addEventListener('mousemove',(e)=>{
+      if (!isDragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      startX = e.clientX; startY = e.clientY;
+      translateX += dx; translateY += dy;
+      applyTransform();
+    });
+    window.addEventListener('mouseup',()=>{ isDragging=false; });
+
+    // Basic touch pinch‑to‑zoom
+    let pinchStartDist = 0, pinchStartScale = 1;
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchStartDist = Math.hypot(dx, dy);
+        pinchStartScale = scale;
+      }
+    }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        const cx = (e.touches[0].clientX + e.touches[1].clientX)/2 - r.left;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY)/2 - r.top;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newDist = Math.hypot(dx, dy);
+        if (pinchStartDist > 0) {
+          const factor = newDist / pinchStartDist;
+          // keep center as anchor; integrate with current scale
+          zoomAtLocalPoint(cx, cy, factor * (pinchStartScale / scale));
+        }
+      }
+    }, { passive: false });
+    canvas.addEventListener('touchend', () => { pinchStartDist = 0; });
+
+    /* -------- Touch swipe to change photo (smartphone) -------- */
+    /* Navigates on horizontal swipe when not zoomed in */
+    let swipeStartX = 0, swipeStartY = 0;
+    let swipeLastX = 0, swipeLastY = 0;
+    let swipeStartTime = 0;
+    const SWIPE_MIN_DIST = 48;     // px threshold for swipe distance
+    const SWIPE_MAX_OFF_AXIS = 36; // px max vertical deviation (to keep it horizontal)
+    const SWIPE_MAX_DURATION = 450; // ms threshold for quick swipe
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return; // ignore multi-touch (pinch, etc.)
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeLastX = swipeStartX;
+      swipeLastY = swipeStartY;
+      swipeStartTime = performance.now();
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      swipeLastX = e.touches[0].clientX;
+      swipeLastY = e.touches[0].clientY;
+      // If zoomed in, let pan/pinch logic work; navigation handled on touchend
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (viewer.hidden) return;
+
+      const dt = performance.now() - swipeStartTime;
+      const dx = swipeLastX - swipeStartX;
+      const dy = swipeLastY - swipeStartY;
+
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+
+      const isHorizontalSwipe = absDx >= SWIPE_MIN_DIST && absDy <= SWIPE_MAX_OFF_AXIS;
+      const isNotZoomedIn = scale <= 1.05;
+
+      if (isHorizontalSwipe && isNotZoomedIn) {
+        if (dt <= SWIPE_MAX_DURATION || absDx >= SWIPE_MIN_DIST * 1.5) {
+          if (dx < 0) showNext();    // left → next
+          else        showPrev();    // right → prev
+        }
+      }
+
+      // Reset swipe state
+      swipeStartX = swipeStartY = swipeLastX = swipeLastY = 0;
+      swipeStartTime = 0;
+    }, { passive: true });
+
+    /* -------- Theme handling -------- */
+    const THEME_KEY = 'dk-gallery-theme';
+
+    function setTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      // Update toggle label
+      if (theme === 'light'){
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      }
+    }
+
+    function initTheme(){
+      // 1) Use saved preference if available
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'light' || saved === 'dark'){
+        setTheme(saved);
+        return;
+      }
+      // 2) Else respect system preference
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      setTheme(prefersLight ? 'light' : 'dark');
+    }
+
+    btnTheme.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+      localStorage.setItem(THEME_KEY, next);
+    });
+
+    // React to system theme changes if user hasn't chosen manually
+    if (window.matchMedia){
+      const media = window.matchMedia('(prefers-color-scheme: light)');
+      media.addEventListener?.('change', (e) => {
+        const saved = localStorage.getItem(THEME_KEY);
+        if (!saved){ setTheme(e.matches ? 'light' : 'dark'); }
+      });
+    }
+
+    /* Footer year & Theme init */
+    document.getElementById('year').textContent = new Date().getFullYear();
+    initTheme();
+   </script>
 </body>
-</html>
+
