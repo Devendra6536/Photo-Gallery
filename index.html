@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title>Gallery</title>
   <style>
     /* ===================== THEME VARIABLES ===================== */
@@ -139,7 +140,7 @@
       text-shadow:0 1px 2px rgba(0,0,0,.5);
     }
 
-   /* ---------- Simple Footer ---------- */
+    /* ---------- Simple Footer ---------- */
     .site-footer{
       padding:12px 16px;
       text-align:center;
@@ -152,6 +153,32 @@
       color:var(--text); text-decoration:none; opacity:.95;
     }
     .site-footer a:hover{ opacity:1; text-decoration:none; }
+
+   /* Social links container */
+.social-links {
+  margin-top: 8px;              /* space above icons */
+  display: flex;                /* flexbox for alignment */
+  justify-content: center;      /* center horizontally */
+  gap: 12px;                    /* spacing between icons */
+}
+
+/* Social icons */
+.social-links .social-icon {
+  font-size: 1.4rem;            /* icon size */
+  display: inline;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Brand colors */
+.social-links .social-icon i.fa-instagram {
+  color: red;               /* Instagram pink */
+}
+
+.social-links .social-icon i.fa-facebook {
+  color: #1877F2;               /* Facebook blue */
+}
+
   </style>
 </head>
 <body>
@@ -160,10 +187,14 @@
       <span id="themeIcon" aria-hidden="true">🌙</span>
       <span id="themeText">Dark</span>
     </button>
-
-    <br><br>
-    <h1>Devendra Kumar 🔒</h1>
+<br><br>
+    <h1> Devendra Kumar 🔒</h1>
     <p>Software Engineer I</p>
+     <!-- Social icons div -->
+    <div class="social-links">
+        <a href="https://www.instagram.com/dk_pal24" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.facebook.com/dk_pal24" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
+    </div>
   </header>
 
   <main>
@@ -545,13 +576,3 @@
     initTheme();
    </script>
 </body>
-
-
-
-
-
-
-
-
-
-
