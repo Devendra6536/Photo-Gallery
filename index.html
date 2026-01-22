@@ -4,11 +4,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <title>Gallery</title>
   <style>
     /* ===================== THEME VARIABLES ===================== */
-    /* Default (fallback) — will be overridden by [data-theme] below */
     :root{
       --bg:#0f1115; --panel:#1a1f26; --text:#eaeef5; --muted:#9aa3ad; --accent:#4cc38a;
       --btn-hover:#243041; --border:rgba(255,255,255,.08);
@@ -34,14 +36,12 @@
       --accent:#2e7d5b;
       --btn-hover:#e9eef5;
       --border:rgba(0,0,0,.10);
-      /* Keep overlay slightly dark for image focus even in light mode */
       --overlay-bg:rgba(10,12,14,.80);
       --shadow:0 8px 20px rgba(0,0,0,.10);
     }
 
     *,*::before,*::after{box-sizing:border-box}
 
-    /* Solid, uniform background across the page */
     html, body{
       height:100%;
       margin:0;
@@ -50,7 +50,6 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
 
-    /* Layout for sticky footer on short pages */
     body{ min-height:100svh; display:flex; flex-direction:column; }
     main{ flex:1; }
 
@@ -66,7 +65,7 @@
     /* Theme toggle in header (top-right) */
     .theme-toggle{
       position:absolute; top:12px; right:12px;
-      border:2px black; background:var(--panel); color:var(--text);
+      border:0; background:var(--panel); color:var(--text);
       padding:8px 10px; border-radius:10px; cursor:pointer;
       box-shadow:var(--shadow); font-size:.95rem; display:flex; align-items:center; gap:.5rem;
     }
@@ -114,6 +113,7 @@
       border:none; background:var(--panel); color:var(--text);
       padding:10px 12px; border-radius:10px; cursor:pointer;
       box-shadow:var(--shadow); font-size:1rem; transition:background 160ms ease;
+      display:inline-flex; align-items:center; gap:.5rem;
     }
     .btn:hover{background:var(--btn-hover)}
     .btn:focus{outline:2px solid var(--accent); outline-offset:2px}
@@ -128,7 +128,7 @@
       width:100%; height:auto; max-width:800px; max-height:600px;
       object-fit:contain;
 
-      /* IMPORTANT: top-left origin for stable zoom math */
+      /* top-left origin for stable zoom math */
       transform-origin: 0 0;
 
       user-select:none; -webkit-user-drag:none;
@@ -149,36 +149,19 @@
       border-top:1px solid var(--border);
       font-size:.9rem;
     }
-    .site-footer a{
-      color:var(--text); text-decoration:none; opacity:.95;
+    .site-footer a{ color:var(--text); text-decoration:none; opacity:.95; }
+    .site-footer a:hover{ opacity:1; }
+
+    /* Social links */
+    .social-links {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
     }
-    .site-footer a:hover{ opacity:1; text-decoration:none; }
-
-   /* Social links container */
-.social-links {
-  margin-top: 8px;              /* space above icons */
-  display: flex;                /* flexbox for alignment */
-  justify-content: center;      /* center horizontally */
-  gap: 12px;                    /* spacing between icons */
-}
-
-/* Social icons */
-.social-links .social-icon {
-  font-size: 1.4rem;            /* icon size */
-  display: inline;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Brand colors */
-.social-links .social-icon i.fa-instagram {
-  color: red;               /* Instagram pink */
-}
-
-.social-links .social-icon i.fa-facebook {
-  color: #1877F2;               /* Facebook blue */
-}
-
+    .social-links .social-icon { font-size: 1.4rem; }
+    .social-links .social-icon i.fa-instagram { color: #E1306C; }
+    .social-links .social-icon i.fa-facebook { color: #1877F2; }
   </style>
 </head>
 <body>
@@ -187,13 +170,17 @@
       <span id="themeIcon" aria-hidden="true">🌙</span>
       <span id="themeText">Dark</span>
     </button>
-<br><br>
+    <br><br>
     <h1> Devendra Kumar 🔒</h1>
     <p>Software Engineer I</p>
-     <!-- Social icons div -->
+    <!-- Social icons -->
     <div class="social-links">
-        <a href="https://www.instagram.com/dk_pal24" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.facebook.com/PalDevendraINSP" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
+      <a href="https://www.instagram.com/yourprofile" class="social-icon" target="_blank" rel="noopener">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.facebook.com/yourprofile" class="social-icon" target="_blank" rel="noopener">
+        <i class="fab fa-facebook"></i>
+      </a>
     </div>
   </header>
 
@@ -205,22 +192,27 @@
   <footer class="site-footer" role="contentinfo">
     <b><small>
       © <span id="year"></span> Devendra Kumar · Software Engineer I
-      ·<a href="tel:8630834625"> 8630834625</a>
-      </small>
-    </b>
+      · <a href="tel:8630834625">8630834625</a>
+    </small></b>
   </footer>
 
   <!-- Viewer -->
   <div id="viewer" class="viewer" hidden>
     <div class="viewer__toolbar">
-      <button class="btn" id="btnPrev">❮</button>
-      <button class="btn" id="btnNext">❯</button>
-      <button class="btn" id="btnZoomIn">+</button>
-      <button class="btn" id="btnZoomOut">−</button>
-      <button class="btn" id="btnReset">⟳</button>
-      <button class="btn" id="btnFull">⛶</button>
+      <button class="btn" id="btnPrev" title="Previous (←)">❮</button>
+      <button class="btn" id="btnNext" title="Next (→)">❯</button>
+      <button class="btn" id="btnZoomIn" title="Zoom In (+)">+</button>
+      <button class="btn" id="btnZoomOut" title="Zoom Out (−)">−</button>
+      <button class="btn" id="btnReset" title="Reset (0)">⟳</button>
+      <button class="btn" id="btnFull" title="Fullscreen (F)">⛶</button>
+
+      <!-- Icon-only Download button -->
+      <button class="btn" id="btnDownload" title="Download (D)" aria-label="Download">
+        <i class="fa-solid fa-download" aria-hidden="true"></i>
+      </button>
+
       <div class="viewer__gap"></div>
-      <button class="btn" id="btnClose">×</button>
+      <button class="btn" id="btnClose" title="Close (Esc)">×</button>
     </div>
 
     <div class="canvas" id="canvas" tabindex="0">
@@ -250,6 +242,7 @@
     const btnReset  = document.getElementById('btnReset');
     const btnFull   = document.getElementById('btnFull');
     const btnClose  = document.getElementById('btnClose');
+    const btnDownload = document.getElementById('btnDownload');
 
     // Theme UI
     const btnTheme  = document.getElementById('btnTheme');
@@ -258,7 +251,7 @@
 
     const images = [];
     let currentIndex = -1;
-    let scale = 1, minScale = 0.25, maxScale = 16; /* generous headroom */
+    let scale = 1, minScale = 0.25, maxScale = 16;
     let translateX = 0, translateY = 0;
     let startX = 0, startY = 0, isDragging = false;
 
@@ -290,12 +283,51 @@
       const r = canvas.getBoundingClientRect();
       zoomAtLocalPoint(r.width/2, r.height/2, factor);
     }
-    function zoomAtPoint(clientX, clientY, factor){
-      const r = canvas.getBoundingClientRect();
-      zoomAtLocalPoint(clientX - r.left, clientY - r.top, factor);
+
+    /* ------- Robust download helpers ------- */
+    async function downloadUrl(url, suggestedName) {
+      try {
+        const res = await fetch(url, { mode: 'cors' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+
+        const a = document.createElement('a');
+        const objectUrl = URL.createObjectURL(blob);
+
+        let filename = suggestedName || 'download';
+        try {
+          const u = new URL(url, location.href);
+          const last = u.pathname.split('/').pop();
+          if (last && !suggestedName) {
+            filename = last;
+          } else if (suggestedName && !/\.[a-z0-9]{2,5}$/i.test(suggestedName) && last && /\.[a-z0-9]{2,5}$/i.test(last)) {
+            const ext = last.split('.').pop();
+            filename = `${suggestedName}.${ext}`;
+          }
+        } catch {}
+
+        a.href = objectUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objectUrl);
+      } catch (err) {
+        // Fallback if CORS blocks fetch
+        const a = document.createElement('a');
+        a.href = url;
+        if (suggestedName) a.setAttribute('download', suggestedName);
+        a.target = '_self';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    }
+    function filenameForIndex(index) {
+      return `${BASE_NAME}${index + 1}`;
     }
 
-    /* -------- Build thumbnails -------- */
+    /* -------- Build thumbnails (no download overlay) -------- */
     function findExistingImageUrl(n){
       return new Promise((resolve, reject) => {
         let idx = 0;
@@ -368,15 +400,21 @@
     btnPrev.addEventListener('click', showPrev);
     btnNext.addEventListener('click', showNext);
 
+    /* Download current (viewer) */
+    function downloadCurrent(){
+      if (currentIndex < 0 || !images[currentIndex]) return;
+      const { src } = images[currentIndex];
+      const suggested = filenameForIndex(currentIndex);
+      downloadUrl(src, suggested);
+    }
+    btnDownload.addEventListener('click', downloadCurrent);
+
     /* Keyboard */
     document.addEventListener('keydown', (e)=>{
-      if (viewer.hidden) return;
-      if (e.key === 'ArrowLeft')  showPrev();
-      if (e.key === 'ArrowRight') showNext();
-      if (e.key === 'Escape')     closeViewer();
-      if (e.key === '+' || e.key === '=') zoomAtCanvasCenter(1.2);
+      if (viewer.hidden === '+' || e.key === '=') zoomAtCanvasCenter(1.2);
       if (e.key === '-')                   zoomAtCanvasCenter(1/1.2);
       if (e.key.toLowerCase() === 'f')  toggleFullscreen();
+      if (e.key.toLowerCase() === 'd')  downloadCurrent();   // <- icon-only download shortcut
     });
 
     /* Buttons */
@@ -391,8 +429,6 @@
     btnFull.addEventListener('click', toggleFullscreen);
 
     /* -------- Zoom interactions -------- */
-
-    // Wheel zoom at cursor (desktop)
     canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
       const r = canvas.getBoundingClientRect();
@@ -403,7 +439,6 @@
       zoomAtLocalPoint(x, y, factor);
     }, { passive: false });
 
-    // Double-click (desktop): zoom IN; hold Shift to zoom OUT
     const onDblClick = (e) => {
       const r = canvas.getBoundingClientRect();
       const x = e.clientX - r.left;
@@ -413,23 +448,20 @@
       zoomAtLocalPoint(x, y, factor);
     };
     canvas.addEventListener('dblclick', onDblClick);
-    // Do NOT bind dblclick on largeImg to avoid double firing
 
-    // Double‑tap (mobile): zoom IN (touch‑only)
+    // Double‑tap (mobile): zoom IN
     let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
     canvas.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'touch') return; // touch only
-
+      if (e.pointerType !== 'touch') return;
       const now = performance.now();
       const dt = now - lastTapTime;
       const r = canvas.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
       const dist = Math.hypot(x - lastTapX, y - lastTapY);
-
       if (dt < 300 && dist < 24) {
         const step = 1.35;
-        zoomAtLocalPoint(x, y, step); // always zoom in on double‑tap
+        zoomAtLocalPoint(x, y, step);
         lastTapTime = 0;
       } else {
         lastTapTime = now; lastTapX = x; lastTapY = y;
@@ -471,24 +503,22 @@
         const newDist = Math.hypot(dx, dy);
         if (pinchStartDist > 0) {
           const factor = newDist / pinchStartDist;
-          // keep center as anchor; integrate with current scale
           zoomAtLocalPoint(cx, cy, factor * (pinchStartScale / scale));
         }
       }
     }, { passive: false });
     canvas.addEventListener('touchend', () => { pinchStartDist = 0; });
 
-    /* -------- Touch swipe to change photo (smartphone) -------- */
-    /* Navigates on horizontal swipe when not zoomed in */
+    /* -------- Swipe to change photo (phone) -------- */
     let swipeStartX = 0, swipeStartY = 0;
     let swipeLastX = 0, swipeLastY = 0;
     let swipeStartTime = 0;
-    const SWIPE_MIN_DIST = 48;     // px threshold for swipe distance
-    const SWIPE_MAX_OFF_AXIS = 36; // px max vertical deviation (to keep it horizontal)
-    const SWIPE_MAX_DURATION = 450; // ms threshold for quick swipe
+    const SWIPE_MIN_DIST = 48;
+    const SWIPE_MAX_OFF_AXIS = 36;
+    const SWIPE_MAX_DURATION = 450;
 
     canvas.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) return; // ignore multi-touch (pinch, etc.)
+      if (e.touches.length !== 1) return;
       swipeStartX = e.touches[0].clientX;
       swipeStartY = e.touches[0].clientY;
       swipeLastX = swipeStartX;
@@ -500,10 +530,9 @@
       if (e.touches.length !== 1) return;
       swipeLastX = e.touches[0].clientX;
       swipeLastY = e.touches[0].clientY;
-      // If zoomed in, let pan/pinch logic work; navigation handled on touchend
     }, { passive: true });
 
-    canvas.addEventListener('touchend', (e) => {
+    canvas.addEventListener('touchend', () => {
       if (viewer.hidden) return;
 
       const dt = performance.now() - swipeStartTime;
@@ -518,12 +547,11 @@
 
       if (isHorizontalSwipe && isNotZoomedIn) {
         if (dt <= SWIPE_MAX_DURATION || absDx >= SWIPE_MIN_DIST * 1.5) {
-          if (dx < 0) showNext();    // left → next
-          else        showPrev();    // right → prev
+          if (dx < 0) showNext();
+          else        showPrev();
         }
       }
 
-      // Reset swipe state
       swipeStartX = swipeStartY = swipeLastX = swipeLastY = 0;
       swipeStartTime = 0;
     }, { passive: true });
@@ -533,7 +561,6 @@
 
     function setTheme(theme){
       document.documentElement.setAttribute('data-theme', theme);
-      // Update toggle label
       if (theme === 'light'){
         themeIcon.textContent = '☀️';
         themeText.textContent = 'Light';
@@ -544,13 +571,11 @@
     }
 
     function initTheme(){
-      // 1) Use saved preference if available
       const saved = localStorage.getItem(THEME_KEY);
       if (saved === 'light' || saved === 'dark'){
         setTheme(saved);
         return;
       }
-      // 2) Else respect system preference
       const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
       setTheme(prefersLight ? 'light' : 'dark');
     }
@@ -562,7 +587,6 @@
       localStorage.setItem(THEME_KEY, next);
     });
 
-    // React to system theme changes if user hasn't chosen manually
     if (window.matchMedia){
       const media = window.matchMedia('(prefers-color-scheme: light)');
       media.addEventListener?.('change', (e) => {
@@ -571,8 +595,8 @@
       });
     }
 
-    /* Footer year & Theme init */
     document.getElementById('year').textContent = new Date().getFullYear();
     initTheme();
-   </script>
+  </script>
 </body>
+</html>
